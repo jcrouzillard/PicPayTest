@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +20,16 @@ public class PaymentService {
     private final PaymentProducer paymentProducer;
 
     public PaymentResponse createPayment(PaymentRequest request) {
+
+        String token = UUID.randomUUID().toString();
+
         Payment payment = Payment.builder()
                 .description(request.getDescription())
+                .paymentType(request.getPaymentType())
                 .amount(request.getAmount())
                 .status(PaymentStatus.PENDING)
                 .createdAt(LocalDateTime.now())
+                .token(token)
                 .build();
 
         Payment saved = paymentRepository.save(payment);
@@ -39,13 +45,21 @@ public class PaymentService {
         return toResponse(payment);
     }
 
+    public PaymentResponse findByToken(String token) {
+        Payment payment = paymentRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Payment not found for token: " + token));
+        return toResponse(payment);
+    }
+
     private PaymentResponse toResponse(Payment payment) {
         return PaymentResponse.builder()
                 .id(payment.getId())
                 .description(payment.getDescription())
+                .type(payment.getPaymentType())
                 .amount(payment.getAmount())
                 .status(payment.getStatus())
                 .createdAt(payment.getCreatedAt())
+                .token(payment.getToken())
                 .build();
     }
 }

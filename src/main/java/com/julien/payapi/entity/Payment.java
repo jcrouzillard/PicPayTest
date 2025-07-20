@@ -26,5 +26,12 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentType paymentType;
+
     private LocalDateTime createdAt;
+
+    @Column(unique = true, nullable = false, updatable = false)
+    private String token;
+
 }
