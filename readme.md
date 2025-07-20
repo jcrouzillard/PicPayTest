@@ -119,24 +119,4 @@ http://localhost:8080/swagger-ui.html
 
 ---
 
-## ✍️ Autor
-
-Julien Crouzillard  
-Projeto técnico individual – backend focado em microsserviços e mensageria
----
-
-## 🏗️ Princípios SOLID aplicados ao projeto
-
-Este projeto foi construído com base nos princípios SOLID, garantindo um código mais limpo, extensível e fácil de manter.
-
-![Princípios SOLID](docs/images/solid-project-picpay.png)
-
-### ✔️ Aplicações no projeto:
-
-- **SRP (Single Responsibility)**: Cada classe tem uma função clara (controller, service, entity, etc).
-- **OCP (Open/Closed)**: Fácil adicionar novos tipos de pagamento sem alterar a lógica central.
-- **LSP (Liskov Substitution)**: Interfaces podem ser substituídas por suas implementações livremente.
-- **ISP (Interface Segregation)**: Interfaces simples e diretas para cada responsabilidade.
-- **DIP (Dependency Inversion)**: Uso de abstrações para facilitar testes e desacoplamento.
-
----
+Desenvolvido para fins de estudo técnico em entrevista técnica PicPay 💚
