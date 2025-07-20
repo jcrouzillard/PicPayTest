@@ -122,3 +122,58 @@ curl --location 'http://localhost:8080/payments' \
 ---
 
 Desenvolvido para fins de estudo técnico em entrevista técnica PicPay 💚
+---
+
+## 🔐 Novas Funcionalidades e Melhorias
+
+### ✅ Tipos de Pagamento (`type`)
+A API agora aceita o campo obrigatório `type` no payload de criação de pagamento com os seguintes valores válidos:
+- `PIX`
+- `BOLETO`
+- `CREDIT_CARD`
+- `DEBIT_CARD`
+
+> Exemplo:
+```json
+{
+  "description": "Assinatura",
+  "amount": 99.90,
+  "type": "PIX"
+}
+```
+
+### 🔑 Token único
+Cada pagamento recebe um `token` do tipo UUID que pode ser utilizado para consultas seguras por:
+- `GET /payments/token/{token}`
+
+### 📋 Validação com Jakarta Bean Validation
+As requisições são validadas com anotações como:
+- `@NotNull`, `@NotBlank`, `@DecimalMin`
+- Respostas HTTP 400 retornam mensagens claras de erro de campo
+
+---
+
+## 🧪 Exemplo com validação e token
+
+```bash
+curl --location 'http://localhost:8080/payments' \
+--header 'Content-Type: application/json' \
+--data '{
+  "description": "Premium",
+  "amount": 49.99,
+  "type": "PIX"
+}'
+```
+
+Resposta:
+```json
+{
+  "id": 1,
+  "description": "Premium",
+  "amount": 49.99,
+  "status": "PENDING",
+  "type": "PIX",
+  "token": "1f45e9ba-7b90-40c2-872a-df0176ac11f4",
+  "createdAt": "2025-07-20T18:00:00"
+}
+```
