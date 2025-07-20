@@ -137,6 +137,6 @@ Este projeto foi construído com base nos princípios SOLID, garantindo um códi
 
 ## ✍️ Autor
 
-Julien Crouzillard 
-Projeto técnico individual – backend focado em microsserviços e mensageria
+ - Julien Crouzillard
+ - Projeto técnico individual – backend focado em microsserviços e mensageria
 ---
