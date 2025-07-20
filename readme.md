@@ -4,6 +4,11 @@ Projeto desenvolvido como parte de um estudo técnico com foco em backend Java, 
 
 ---
 
+## 🖼️ Arquitetura da Solução
+![Arquitetura](docs/images/image-picpay.png)
+
+---
+
 ## 📦 Stack utilizada
 
 - Java 21
