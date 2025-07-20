@@ -19,7 +19,6 @@ Projeto desenvolvido como parte de um estudo técnico com foco em backend Java, 
 - Lombok
 - Swagger / OpenAPI
 - Docker Compose
-- Bean Validation (Jakarta)
 
 ---
 
@@ -40,85 +39,104 @@ src/
 │       ├── application.yml              # Configuração base
 │       ├── application-dev.yml         # Ambiente de desenvolvimento
 │       └── application-prod.yml        # Ambiente de produção
-├── docker-compose.yml
-└── pom.xml
 ```
 
 ---
 
-## 🚀 Como executar
+## ⚙️ Funcionalidades
 
-### 1. Subir infraestrutura com Docker
+- Criar pagamentos via REST
+- Persistir dados em banco PostgreSQL
+- Produzir eventos para Kafka ao criar pagamentos
+- Consumir eventos de Kafka e atualizar status
+- Documentação automática com Swagger
+
+---
+
+## 🔁 Fluxo principal
+
+1. Cliente faz `POST /payments` com descrição e valor
+2. API salva o pagamento com status `PENDING`
+3. Evento é enviado ao Kafka
+4. Consumer ouve o evento e atualiza o status para `PROCESSED`
+
+---
+
+## ▶️ Como rodar localmente
+
+### Pré-requisitos
+- Docker e Docker Compose
+- JDK 21
+- Maven
+
+### Subir infraestrutura (PostgreSQL, Kafka, Zookeeper):
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-### 2. Rodar a aplicação
+### Rodar a aplicação com perfil de desenvolvimento:
 
 ```bash
-./mvnw spring-boot:run
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 ---
 
-## ✅ Funcionalidades
+## 📮 Exemplos de requisição
 
-- Criar pagamento (`POST /payments`)
-- Buscar pagamento por ID (`GET /payments/{id}`)
-- Buscar pagamento por token (`GET /payments/token/{token}`)
-- Enviar eventos de pagamento para Kafka
-- Consumir eventos de Kafka
-- Gerar `token` único para cada pagamento
-- Suporte a múltiplos tipos de pagamento: `PIX`, `BOLETO`, `CREDIT_CARD`, `DEBIT_CARD`
-- Validações com Jakarta Bean Validation
+### Criar pagamento
 
----
-
-## 📌 Segurança e boas práticas
-
-- Uso de `UUID` como token público no payload
-- Camada de DTO para abstrair a entidade
-- Enum `PaymentType` validado via `@NotNull`
-- Configuração de ambientes separada via YAML
-- Integração segura com Kafka usando `JsonSerializer` e `JsonDeserializer`
-
----
-
-## 📬 Exemplo de requisição (POST /payments)
-
-```bash
-curl --location 'http://localhost:8080/payments' \
---header 'Content-Type: application/json' \
---data '{
-  "description": "Assinatura Mensal",
-  "amount": 89.99,
-  "type": "PIX"
-}'
-```
-
-### Resposta esperada
+`POST /payments`
 
 ```json
 {
-  "id": 1,
-  "description": "Assinatura Mensal",
-  "amount": 89.99,
-  "status": "PENDING",
-  "type": "PIX",
-  "token": "d93f25ab-f820-4aeb-9f3c-b109e884fc1b",
-  "createdAt": "2025-07-20T18:00:00"
+  "description": "Assinatura Premium",
+  "amount": 49.90
 }
+```
+
+### Buscar pagamento
+
+`GET /payments/1`
+
+---
+
+## 📑 Swagger
+
+Disponível em:
+
+```
+http://localhost:8080/swagger-ui.html
 ```
 
 ---
 
-## 🔍 Observações
+## ✅ Testes Automatizados
 
-- O campo `type` é **obrigatório** e deve conter um valor válido entre: `PIX`, `BOLETO`, `CREDIT_CARD`, `DEBIT_CARD`
-- Validações com `@NotBlank`, `@DecimalMin`, `@NotNull` são aplicadas no DTO
-- Em caso de erro de validação, retorna HTTP 400 com mensagem detalhada
+- `PaymentServiceTest`: cobre criação, busca e exceção
+- (em progresso) `PaymentControllerTest`, `KafkaConsumerTest`
 
 ---
 
-Desenvolvido para fins de estudo técnico em entrevista técnica PicPay 💚
+## ✍️ Autor
+
+Julien Crouzillard  
+Projeto técnico individual – backend focado em microsserviços e mensageria
+---
+
+## 🏗️ Princípios SOLID aplicados ao projeto
+
+Este projeto foi construído com base nos princípios SOLID, garantindo um código mais limpo, extensível e fácil de manter.
+
+![Princípios SOLID](docs/images/solid-project-picpay.png)
+
+### ✔️ Aplicações no projeto:
+
+- **SRP (Single Responsibility)**: Cada classe tem uma função clara (controller, service, entity, etc).
+- **OCP (Open/Closed)**: Fácil adicionar novos tipos de pagamento sem alterar a lógica central.
+- **LSP (Liskov Substitution)**: Interfaces podem ser substituídas por suas implementações livremente.
+- **ISP (Interface Segregation)**: Interfaces simples e diretas para cada responsabilidade.
+- **DIP (Dependency Inversion)**: Uso de abstrações para facilitar testes e desacoplamento.
+
+---
