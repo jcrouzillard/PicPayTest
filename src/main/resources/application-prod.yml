@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-db:5432/payapi
+    username: prod_user
+    password: secure_pwd
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+kafka:
+  bootstrap-servers: kafka.prod.internal:9092
+  topic: pagamentos-prod

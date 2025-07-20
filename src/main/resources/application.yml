@@ -1,0 +1,7 @@
+# application.yml (geral)
+spring:
+  profiles:
+    active: dev  # ou test, ou prod
+
+server:
+  port: 8080
