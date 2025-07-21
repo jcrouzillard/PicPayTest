@@ -135,8 +135,25 @@ Este projeto foi construído com base nos princípios SOLID, garantindo um códi
 
 ---
 
+## 🧠 System Design Overview
+
+Este projeto foi idealizado com foco em escalabilidade, performance e boas práticas de arquitetura de sistemas distribuídos. A imagem abaixo ilustra os principais componentes envolvidos:
+
+![System Design](docs/images/system-design.png)
+
+### 🔍 Componentes principais:
+
+- **API REST (Spring Boot):** expõe os endpoints para criação de pagamentos
+- **Kafka:** comunicação assíncrona e desacoplada entre produtores e consumidores
+- **PostgreSQL:** banco de dados relacional para persistência
+- **Docker Compose:** orquestração dos serviços localmente
+- **Validação e Segurança:** uso de tokens e validação com Jakarta Bean Validation
+- **Extensibilidade:** suporte a múltiplos tipos de pagamento
+
+---
+
 ## ✍️ Autor
 
- - Julien Crouzillard
- - Projeto técnico individual – backend focado em microsserviços e mensageria
+- Julien Crouzillard
+- Projeto técnico individual – backend focado em microsserviços e mensageria
 ---
