@@ -28,6 +28,7 @@ Projeto desenvolvido como parte de um estudo técnico com foco em backend Java, 
 src/
 ├── main/
 │   ├── java/com.julien.payapi/
+│   │   ├── config/            # Application Config
 │   │   ├── controller/        # REST Controllers
 │   │   ├── dto/               # Data Transfer Objects
 │   │   ├── entity/            # JPA Entities e Enums
@@ -36,7 +37,7 @@ src/
 │   │   ├── service/           # Regras de negócio
 │   │   └── PayApiApplication  # Classe principal
 │   └── resources/
-│       ├── application.yml              # Configuração base
+│       ├── application.yml             # Configuração base
 │       ├── application-dev.yml         # Ambiente de desenvolvimento
 │       └── application-prod.yml        # Ambiente de produção
 ```
@@ -152,6 +153,23 @@ Este projeto foi idealizado com foco em escalabilidade, performance e boas prát
 
 ---
 
+## 🛠️ Retry e Redirecionamento de Mensagens no Kafka
+
+A aplicação implementa um mecanismo de retry com Spring Kafka para garantir maior resiliência no processamento de mensagens.
+
+- Em caso de falhas no consumo, o sistema realiza até 3 tentativas com um intervalo fixo de 3 segundos entre elas.
+- Se todas as tentativas falharem, a mensagem é redirecionada automaticamente para um tópico de retry chamado `payment-retry-topic`.
+- Essa abordagem evita perda de mensagens importantes e permite um reprocessamento assíncrono futuro.
+- Os tópicos são criados automaticamente no bootstrap da aplicação.
+
+Além disso, a aplicação conta com regras específicas de negócio, como:
+
+- Validação que impede a criação de pagamentos PIX com valores superiores a R$1000.
+- Validação automática dos atributos via Bean Validation (`@Valid`) no controller.
+
+Esses mecanismos fortalecem a confiabilidade e controle da aplicação em ambientes distribuídos.
+
+---
 ## ✍️ Autor
 
 - Julien Crouzillard
