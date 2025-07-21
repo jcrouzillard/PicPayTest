@@ -8,6 +8,7 @@ import com.julien.payapi.kafka.PaymentProducer;
 import com.julien.payapi.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,6 +20,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentProducer paymentProducer;
 
+    @Transactional
     public PaymentResponse createPayment(PaymentRequest request) {
 
         String token = UUID.randomUUID().toString();
@@ -31,6 +33,8 @@ public class PaymentService {
                 .createdAt(LocalDateTime.now())
                 .token(token)
                 .build();
+
+        payment.validate();
 
         Payment saved = paymentRepository.save(payment);
         paymentProducer.send(payment);

@@ -2,6 +2,7 @@ package com.julien.payapi.kafka;
 
 import com.julien.payapi.entity.Payment;
 import com.julien.payapi.entity.PaymentStatus;
+import com.julien.payapi.entity.PaymentType;
 import com.julien.payapi.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,10 @@ public class PaymentConsumer {
     @KafkaListener(topics = "payments", groupId = "payapi-consumer")
     public void consume(Payment incomingPayment) {
         log.info("Consumed payment from Kafka: {}", incomingPayment);
-
+        if (PaymentType.DEBIT_CARD.equals(incomingPayment.getPaymentType())) {
+            log.warn("Pagamento DEBIT_CARD forçado para retry");
+            throw new RuntimeException("Retry forçado para DEBIT_CARD");
+        }
         paymentRepository.findById(incomingPayment.getId()).ifPresentOrElse(payment -> {
             payment.setStatus(PaymentStatus.PROCESSED);
             paymentRepository.save(payment);

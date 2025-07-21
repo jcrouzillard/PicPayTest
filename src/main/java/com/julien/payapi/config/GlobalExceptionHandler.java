@@ -18,4 +18,15 @@ public class GlobalExceptionHandler {
                 errors.put(err.getField(), err.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Validation failed");
+        error.put("message", ex.getMessage());
+
+        return ResponseEntity
+                .badRequest()
+                .body(error);
+    }
 }
