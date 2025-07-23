@@ -1,50 +1,107 @@
 version: '3.8'
 
 services:
-
-  postgres:
+  postgres-dev:
     image: postgres:15
-    container_name: postgres-payapi
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: payapi
+    container_name: postgres-dev
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_DB: picpay_dev
+      POSTGRES_USER: picpay
+      POSTGRES_PASSWORD: picpay
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_dev_data:/var/lib/postgresql/data
     networks:
       - payapi-net
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+      - "-c"
+      - "max_replication_slots=4"
+      - "-c"
+      - "max_wal_senders=4"
+
+#  postgres-prod:
+#    image: postgres:15
+#    container_name: postgres-prod
+#    ports:
+#      - "5433:5432"
+#    environment:
+#      POSTGRES_DB: picpay_prod
+#      POSTGRES_USER: picpay
+#      POSTGRES_PASSWORD: picpay
+#    volumes:
+#      - postgres_prod_data:/var/lib/postgresql/data
+#    networks:
+#      - payapi-net
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.1
     container_name: zookeeper
+    ports:
+      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
     networks:
       - payapi-net
 
   kafka:
     image: confluentinc/cp-kafka:7.5.1
     container_name: kafka
+    ports:
+      - "9093:9093"
     depends_on:
       - zookeeper
-    ports:
-      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_MESSAGE_MAX_BYTES: 200000000
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 200000000
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,OUTSIDE://localhost:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    networks:
+      - payapi-net
+
+  kafka-connect:
+    image: quay.io/debezium/connect:2.6
+    platform: linux/amd64
+    container_name: kafka-connect
+    ports:
+      - "8083:8083"
+    depends_on:
+      - kafka
+      - postgres-dev
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect-configs
+      OFFSET_STORAGE_TOPIC: connect-offsets
+      STATUS_STORAGE_TOPIC: connect-status
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+      CONNECT_REST_ADVERTISED_PORT: 8083
+      CONNECT_REST_HOST_NAME: kafka-connect
+      CONNECT_PLUGIN_PATH: /kafka/connectors
+      CONNECT_URL: http://localhost:8083
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh
+      - ./kafka/connectors:/kafka/connectors
+      - ./register-picpay-connector.sh:/register-picpay-connector.sh
+      - ./kafka/config/connect-distributed.properties:/kafka/config/connect-log4j.properties
+    entrypoint: ["sh", "/entrypoint.sh"]
     networks:
       - payapi-net
 
 volumes:
-  pgdata:
+  postgres_dev_data:
+  postgres_prod_data:
 
 networks:
   payapi-net:
